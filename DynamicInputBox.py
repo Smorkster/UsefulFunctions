@@ -71,7 +71,7 @@ class dynamic_inputbox():
         self._master.resizable( False, False )
         self.input_fields = {}
         self.alternatives_vars = {}
-        self.e = None
+        self.firstentry = None
 
         self.title = title
         self.message = message
@@ -94,11 +94,13 @@ class dynamic_inputbox():
         self.show()
 
     def cancel( self ):
+        """ Cancels the dialog, setting input text to 'Cancel' and closing the window. """
         self._inputtext = 'Cancel'
         self._clicked_button = ''
         self._master.destroy()
 
     def on_closing( self, button = None ):
+        """ Handles the closing of the dialog, collecting input data and clicked button. """
         self._inputtext = {
             'inputs': [ ( label, field.get() ) for label, field in self.input_fields.items() ],
             'alternatives': [ ( label, var.get() ) for label, var in self.alternatives_vars.items() ]
@@ -110,12 +112,25 @@ class dynamic_inputbox():
         self._master.destroy()
 
     def preset_keypress( self, event ):
-        input_item = next( ( item for item in self.inputs if item.get( 'label' ) == 'Test 4' ), None )
-        if event.widget.get() == input_item.get( 'preset' ) and Font( font = event.widget.cget( 'font' ) ).actual().get( 'slant' ) == 'italic':
-            event.widget.delete( 0, 'end' )
-        event.widget.config( font = ( 'Calibri', 12, 'normal' ), show = input_item.get( 'show' ), fg = '#000000' )
+        """ Handles keypress events for input fields to clear preset text and reset font style. """
+        for label, widget in self.input_fields.items():
+            if widget == event.widget:
+                input_item = next( ( item for item in self.inputs if item.get( 'label' ) == label ), None )
+                if input_item is None:
+                    return
+
+                if event.widget.get() == input_item.get( 'preset' ) and Font( font = event.widget.cget( 'font' ) ).actual().get( 'slant' ) == 'italic':
+                    event.widget.delete( 0, 'end' )
+
+                event.widget.config(
+                    font = ( 'Calibri', 12, 'normal' ),
+                    show = input_item.get( 'show' ) if input_item.get( 'show' ) else '',
+                    fg='#000000'
+                )
+                break
 
     def show( self ):
+        """ Displays the input dialog with the specified inputs, alternatives, and buttons. """
         row_index = 0
 
         # Setup columns for each button
@@ -138,18 +153,18 @@ class dynamic_inputbox():
                 lbl.grid( row = row_index + i, sticky = W, padx = 10 )
 
                 entry = Entry( self._master, font = ( 'Calibri', 12, 'normal' ) )
-                entry.winfo_name()
                 entry.insert( 0, default )
                 entry.grid( row = row_index + i + 1, padx = 10, pady = 2, sticky = ( W, E ) )
                 self.input_fields[label_text] = entry
+                if i == 0:
+                    self.firstentry = entry
 
-                # show = show[0] if show else None , 
                 if preset:
                     if not default:
                         entry.insert( 0, preset )
                         entry.config( foreground = '#D3D3D3' , font = ( 'Calibri', 12, 'italic' ) )
                 else:
-                    if show:
+                    if show != None:
                         entry.config( show = show[0] if show else None )
 
                 entry.bind( "<KeyPress>", self.preset_keypress )
@@ -199,13 +214,14 @@ class dynamic_inputbox():
 
         self._master.focus_force()
         if self.input:
-            self.e.focus()
+            self.firstentry.focus()
         else:
             self._default_button_to_focus.focus()
 
         self._master.mainloop()
 
     def get( self, dictionary = False ):
+        """ Retrieves the input data and clicked button after the dialog is closed. """
         if not dictionary:
             return ( self._inputtext[ 'inputs' ], self._inputtext[ 'alternatives' ], self._clicked_button )
         else:
@@ -215,7 +231,8 @@ class dynamic_inputbox():
                 'button': self._clicked_button
             }
 
-""" Example usage
+"""This is an example of how to use the dynamic_inputbox class."""
+"""
 if __name__ == '__main__':
     result = dynamic_inputbox(
         title = 'test',
@@ -234,5 +251,5 @@ if __name__ == '__main__':
         )
     r = result.get()
     rr = result.get( dictionary = True )
-    print( r )
+    print( rr )
 """
