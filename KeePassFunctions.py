@@ -2,6 +2,7 @@ import os
 import sys
 import time
 import pykeepass
+
 from pywinauto.application import Application
 from pywinauto.findwindows import find_window
 from pywinauto.keyboard import send_keys
@@ -20,28 +21,34 @@ MODIFIER_RELEASE = {"CTRLUP", "ALTUP", "SHIFTUP", "WINUP"}
 
 # Load credentials from KeePass
 def get_credentials( entry_title , return_entry = False , file = None , path = None ):
+    """
+    Get credential entry from KeePass database-file
+    
+    * entry_title - Name given to the entry to be retrieved
+    * return_entry - Should the whole entry be returned, or only username and password
+    """
     if file == None:
         file = 'Pwd_Db.kdbx'
     if path == None:
         path = '~'
     keepass_file = os.path.expanduser( os.sep.join( [ path, file ] ) )
-    keepass_password, btn = dynamic_input( "KeePass Password", "Enter password to KeePass-database file\n" + keepass_file, input = True, input_show = '*' )
+    entered_password = dynamic_input( title = "KeePass Password" , inputs = [ { 'label' : 'Enter password to KeePass-database file' , 'show': '*' } ] ).get( dictionary = True )
+    keepass_password = list( entered_password.get( 'inputs' , {} ).values() )[0]
 
-    if keepass_password == None:
+    if len( keepass_password ) == 0 or entered_password.get( 'button' , None ) != 'OK':
         dynamic_input( "No password", "No password entered.\nExiting" )
         sys.exit()
 
     try:
         kp = pykeepass.PyKeePass( keepass_file, password = keepass_password )
-        
     except pykeepass.exceptions.CredentialsError as e:
-        dynamic_input( "Error when reading", "Could not read KeePass-database file:\n" + e.args[0] )
+        dynamic_input( "Error when reading", f"Could not read KeePass-database file:\n{ e.args[0] }" )
         sys.exit()
     except FileNotFoundError as e:
-        dynamic_input( "Error when reading", "Could not find file:\n" + e.args[1] )
+        dynamic_input( "Error when reading", f"Could not find file:\n{ e.args[1] }" )
         sys.exit()
     except Exception as e:
-        dynamic_input( "Error when reading", "Some error occured when reading KeePass-database file:\n" + e.args[0] )
+        dynamic_input( "Error when reading", e.args[0] )
         sys.exit()
 
     entry = kp.find_entries( title = entry_title, first = True )
@@ -51,7 +58,7 @@ def get_credentials( entry_title , return_entry = False , file = None , path = N
         else:
             return entry.username, entry.password
     else:
-        raise ValueError( "Could not find entry with the given name '" + entry_title + "'" )
+        raise ValueError( f"Could not find entry with the given name '{ entry_title }'" )
 
 def send_autotype_sequence( sequence: str, replacements: dict ):
     # Replace placeholders like {USERNAME}, {PASSWORD}, etc.
@@ -71,20 +78,20 @@ def send_autotype_sequence( sequence: str, replacements: dict ):
             # Handle {DELAY 1000}
             if token.startswith( "DELAY " ):
                 if output:
-                    send_keys(output, pause=0.01)
+                    send_keys( output, pause = 0.01 )
                     output = ""
-                delay_ms = int(token.split()[1])
-                time.sleep(delay_ms / 1000)
+                delay_ms = int( token.split()[1] )
+                time.sleep( delay_ms / 1000 )
                 continue
 
             # Handle {VKEY 0xXX}
-            elif token.startswith("VKEY "):
+            elif token.startswith( "VKEY " ):
                 if output:
-                    send_keys(output, pause=0.01)
+                    send_keys( output, pause = 0.01 )
                     output = ""
                 vkey_hex = token.split()[1]
                 try:
-                    key = chr(int(vkey_hex, 16))
+                    key = chr( int( vkey_hex, 16 ) )
                     send_keys( key )
                 except Exception:
                     raise ValueError( f"Invalid VKEY: { token }" )
@@ -120,4 +127,6 @@ def use_KeePass_sequence( kp_entry ):
         "{TITLE}": k.title or "",
     }
 
+    if not k.autotype_sequence:
+        raise ValueError( "Autotype-sekvens saknas i KeePass-posten." )
     send_autotype_sequence( k.autotype_sequence, replacements )
