@@ -95,7 +95,7 @@ class dynamic_inputbox():
 
     def cancel( self ):
         """ Cancels the dialog, setting input text to 'Cancel' and closing the window. """
-        self._inputtext = 'Cancel'
+        self._inputtext = { 'inputs': [], 'alternatives': [] }
         self._clicked_button = ''
         self._master.destroy()
 
@@ -132,27 +132,30 @@ class dynamic_inputbox():
     def show( self ):
         """ Displays the input dialog with the specified inputs, alternatives, and buttons. """
         row_index = 0
+        title_font = Font( family = 'Calibri', size = 14, weight = 'bold' )
+        ord_font = Font( family = 'Calibri', size = 12, weight = 'normal' )
+        preset_font = Font( family = 'Calibri', size = 12, weight = 'italic' )
 
         # Setup columns for each button
         for i in range( len( self.buttons ) ):
             self._master.columnconfigure( i, weight = 1 )
 
         if self.message:
-            m = Label( self._master, text = self.message, justify = 'left' )
+            m = Label( self._master, text = self.message, justify = 'left' ,font = ord_font )
             m.grid( row = 0, column = 0, columnspan = len( self.buttons ), padx = 10, pady = 5, sticky = ( N, W ) )
             row_index = 1
 
         if self.inputs:
             for i, input in enumerate( self.inputs ):
-                label_text = input.get( 'label', f'Field { i }' )
-                default = input.get( 'default', '' )
+                label_text = input.get( 'label', f'Field { i }' ).strip()
+                default = input.get( 'default', '' ).strip()
                 show = input.get( 'show', None )
                 preset = input.get( 'preset', None )
 
-                lbl = Label( self._master, text = label_text )
+                lbl = Label( self._master, text = label_text , font = title_font, justify = 'left' )
                 lbl.grid( row = row_index + i, sticky = W, padx = 10 )
 
-                entry = Entry( self._master, font = ( 'Calibri', 12, 'normal' ) )
+                entry = Entry( self._master, font = ord_font )
                 entry.insert( 0, default )
                 entry.grid( row = row_index + i + 1, padx = 10, pady = 2, sticky = ( W, E ) )
                 self.input_fields[label_text] = entry
@@ -162,7 +165,7 @@ class dynamic_inputbox():
                 if preset:
                     if not default:
                         entry.insert( 0, preset )
-                        entry.config( foreground = '#D3D3D3' , font = ( 'Calibri', 12, 'italic' ) )
+                        entry.config( foreground = '#D3D3D3' , font = preset_font )
                 else:
                     if show != None:
                         entry.config( show = show[0] if show else None )
@@ -172,20 +175,22 @@ class dynamic_inputbox():
 
         row_index += len( self.inputs )
         if self.alternatives:
+            row_index += 1
             for j, alternative in enumerate( self.alternatives ):
                 grp_frame = Frame( master = self._master )
-                grp_frame.grid( row = row_index + j, column = 0, sticky = W )
-                label = alternative.get( 'label', f'Group { j }' )
+                grp_frame.grid( row = row_index, column = 0, sticky = W )
+                label = alternative.get( 'label', f'Group { j }' ).strip()
                 options = alternative.get( 'options', [] )
-                default = alternative.get( 'default', options[0] if options else '' )
+                default = alternative.get( 'default', options[0] if options else '' ).strip()
                 var = StringVar( value = default )
                 self.alternatives_vars[label] = var
 
-                Label( master = grp_frame, text = label , font = ( 'Calibri', 14, 'bold' ) ).grid( columnspan = len( options ) )
+                Label( master = grp_frame, text = label , font = title_font , justify = 'left' ).grid( columnspan = len( options ) , sticky = 'W' , padx = 10 )
 
                 for i, option in enumerate( options ):
-                    rb = Radiobutton( grp_frame, text = option, variable = var, value = option )
+                    rb = Radiobutton( grp_frame, text = option, variable = var, value = option , font = ord_font, justify = 'left' )
                     rb.grid( row = row_index + j, column = 1 + i, sticky = W, padx = 5 )
+                row_index += 1
 
         row_index += 1
         for i, btn_text in enumerate( self.buttons ):
@@ -197,6 +202,7 @@ class dynamic_inputbox():
             if btn_text == self.default_button or ( self.default_button is None and i == 0 ):
                 self._default_button_to_focus = b
 
+        self._master.bind( '<Return>', lambda event: self.on_closing( self._clicked_button or self.default_button or self.buttons[0] ) )
         self._master.update_idletasks()
         width = self._master.winfo_width()
         frm_width = self._master.winfo_rootx() - self._master.winfo_x()
@@ -213,7 +219,7 @@ class dynamic_inputbox():
         self._master.protocol( "WM_DELETE_WINDOW", self.on_closing )
 
         self._master.focus_force()
-        if self.input:
+        if self.inputs and len( self.inputs ) > 0:
             self.firstentry.focus()
         else:
             self._default_button_to_focus.focus()
@@ -222,18 +228,23 @@ class dynamic_inputbox():
 
     def get( self, dictionary = False ):
         """ Retrieves the input data and clicked button after the dialog is closed. """
+        inputs_dict = dict( self._inputtext[ 'inputs' ] ) if self.inputs else None
+        alternatives_dict = dict( self._inputtext[ 'alternatives' ] ) if self.alternatives else None
+
         if not dictionary:
-            return ( self._inputtext[ 'inputs' ], self._inputtext[ 'alternatives' ], self._clicked_button )
+            return ( inputs_dict, alternatives_dict, self._clicked_button )
         else:
-            return {
-                'inputs': dict( self._inputtext[ 'inputs' ] ),
-                'alternatives': dict( self._inputtext[ 'alternatives' ] ),
-                'button': self._clicked_button
-            }
+            result = { 'button': self._clicked_button }
+            if inputs_dict is not None:
+                result[ 'inputs' ] = inputs_dict
+            if alternatives_dict is not None:
+                result[ 'alternatives' ] = alternatives_dict
+            return result
 
 """This is an example of how to use the dynamic_inputbox class."""
 """
 if __name__ == '__main__':
+
     result = dynamic_inputbox(
         title = 'test',
         message = 'test msg',
@@ -246,10 +257,13 @@ if __name__ == '__main__':
             { 'label':'Test 4', 'preset': 'test preset' , 'show':'p'}
             ],
         alternatives = [
-            {'label': 'Role', 'options': ['Admin', 'User'], 'default': 'User'}
+            {'label': 'Role', 'options': ['Admin', 'User'], 'default': 'User'},
+            {'label': 'Role 2', 'options': ['Admin 2', 'User 2'], 'default': 'User'}
             ],
         )
     r = result.get()
+    print( r )
     rr = result.get( dictionary = True )
-    print( rr )
+    print( list( rr.get( 'inputs' , {} ).values() )[0] )
+
 """
