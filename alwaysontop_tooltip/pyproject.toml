@@ -1,0 +1,12 @@
+[project]
+name = "alwaysontop_tooltip"
+version = "1.0"
+description = "..."
+authors = [{ name="Smorkster", email="smorkster@gmail.com" }]
+readme = "README.md"
+license = {text = "MIT"}
+dependencies = []
+
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
