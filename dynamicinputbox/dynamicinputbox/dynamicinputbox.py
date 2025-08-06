@@ -134,7 +134,7 @@ class dynamic_inputbox():
         row_index = 0
         title_font = Font( family = 'Calibri', size = 14, weight = 'bold' )
         ord_font = Font( family = 'Calibri', size = 12, weight = 'normal' )
-        preset_font = Font( family = 'Calibri', size = 12, weight = 'italic' )
+        preset_font = Font( family = 'Calibri', size = 12, slant = 'italic' )
 
         # Setup columns for each button
         for i in range( len( self.buttons ) ):
@@ -240,30 +240,3 @@ class dynamic_inputbox():
             if alternatives_dict is not None:
                 result[ 'alternatives' ] = alternatives_dict
             return result
-
-"""This is an example of how to use the dynamic_inputbox class."""
-"""
-if __name__ == '__main__':
-
-    result = dynamic_inputbox(
-        title = 'test',
-        message = 'test msg',
-        buttons = ['ok','cans'],
-        default_button = 'ok',
-        inputs = [
-            { 'label':'Test 1' },
-            { 'label':'Test 2', 'default': 'Test default' },
-            { 'label':'Test 3', 'show': '*' },
-            { 'label':'Test 4', 'preset': 'test preset' , 'show':'p'}
-            ],
-        alternatives = [
-            {'label': 'Role', 'options': ['Admin', 'User'], 'default': 'User'},
-            {'label': 'Role 2', 'options': ['Admin 2', 'User 2'], 'default': 'User'}
-            ],
-        )
-    r = result.get()
-    print( r )
-    rr = result.get( dictionary = True )
-    print( list( rr.get( 'inputs' , {} ).values() )[0] )
-
-"""
