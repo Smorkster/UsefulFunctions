@@ -5,15 +5,15 @@ class AlwaysOnTopToolTip:
     def __init__( self, widget, msg, delay = 500, bg = "#ffffe0", font = ( "Calibri", 10 ), wraplength = 300, borderstyle = 'solid', borderwidth = 1, stationary = False ):
         """ Initialize the tooltip attached to widget
 
-        * widget
-        * message (msg)
-        * delay
-        * background color (bg)
-        * font
-        * wrap length
-        * border style
-        * border width
-        * stationary
+        * widget - The widget to attach the tooltip to
+        * message (msg) - The text to display in the tooltip
+        * delay - Delay in milliseconds before showing the tooltip
+        * background color (bg) - Background color of the tooltip
+        * font - Font used for the tooltip text
+        * wraplength - Maximum width of the tooltip text before wrapping
+        * borderstyle - Style of the tooltip border (e.g., 'solid', 'flat', 'raised', 'sunken', 'groove', 'ridge')
+        * borderwidth - Width of the tooltip border
+        * stationary - If True, the tooltip does not follow the mouse cursor
         """
         self.widget = widget
         self.text = msg
