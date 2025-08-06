@@ -3,7 +3,7 @@ import tkinter as tk
 class AlwaysOnTopToolTip:
     """ A tooltip that appears when hovering over a widget, remains on top, and can be styled """
     def __init__( self, widget, msg, delay = 500, bg = "#ffffe0", font = ( "Calibri", 10 ), wraplength = 300, borderstyle = 'solid', borderwidth = 1, stationary = False ):
-        """ Initialize the tooltip with the widget, message, delay, background color, font, and wrap length """
+        """ Initialize the tooltip attached to widget, message, delay, background color, font, and wrap length """
         self.widget = widget
         self.text = msg
         self.delay = delay
