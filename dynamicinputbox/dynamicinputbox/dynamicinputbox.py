@@ -1,4 +1,4 @@
-from tkinter import Frame, Radiobutton, StringVar, Tk, Button, Entry, Label, N, S, E, W
+from tkinter import Frame, Radiobutton, StringVar, Tk, Button, Entry, Label, N, E, W
 from tkinter.font import Font
 from typing import Dict, List, Optional, Union
 
@@ -10,7 +10,6 @@ class dynamic_inputbox():
                  input_default = '',
                  input_show = None,
                  preset_text = None,
-                 # Label, Default, Show, Preset
                  inputs: Optional[ List[ Dict[ str, Union[ str, None ] ] ] ] = None,
                  alternatives: Optional[ List[ Dict[ str, Union[ str, List[ str ] ] ] ] ] = None,
                  buttons: Optional[ List[ str ] ] = [ 'OK' ],
@@ -133,7 +132,7 @@ class dynamic_inputbox():
         """ Displays the input dialog with the specified inputs, alternatives, and buttons. """
         row_index = 0
         title_font = Font( family = 'Calibri', size = 14, weight = 'bold' )
-        ord_font = Font( family = 'Calibri', size = 12, weight = 'normal' )
+        ordinary_font = Font( family = 'Calibri', size = 12, weight = 'normal' )
         preset_font = Font( family = 'Calibri', size = 12, slant = 'italic' )
 
         # Setup columns for each button
@@ -141,7 +140,7 @@ class dynamic_inputbox():
             self._master.columnconfigure( i, weight = 1 )
 
         if self.message:
-            m = Label( self._master, text = self.message, justify = 'left' ,font = ord_font )
+            m = Label( self._master, text = self.message, justify = 'left' ,font = ordinary_font )
             m.grid( row = 0, column = 0, columnspan = len( self.buttons ), padx = 10, pady = 5, sticky = ( N, W ) )
             row_index = 1
 
@@ -155,7 +154,7 @@ class dynamic_inputbox():
                 lbl = Label( self._master, text = label_text , font = title_font, justify = 'left' )
                 lbl.grid( row = row_index + i, sticky = W, padx = 10 )
 
-                entry = Entry( self._master, font = ord_font )
+                entry = Entry( self._master, font = ordinary_font )
                 entry.insert( 0, default )
                 entry.grid( row = row_index + i + 1, padx = 10, pady = 2, sticky = ( W, E ) )
                 self.input_fields[label_text] = entry
@@ -188,7 +187,7 @@ class dynamic_inputbox():
                 Label( master = grp_frame, text = label , font = title_font , justify = 'left' ).grid( columnspan = len( options ) , sticky = 'W' , padx = 10 )
 
                 for i, option in enumerate( options ):
-                    rb = Radiobutton( grp_frame, text = option, variable = var, value = option , font = ord_font, justify = 'left' )
+                    rb = Radiobutton( grp_frame, text = option, variable = var, value = option , font = ordinary_font, justify = 'left' )
                     rb.grid( row = row_index + j, column = 1 + i, sticky = W, padx = 5 )
                 row_index += 1
 
