@@ -5,11 +5,15 @@ class AlwaysOnTopToolTip:
     def __init__( self, widget, msg, delay = 500, bg = "#ffffe0", font = ( "Calibri", 10 ), wraplength = 300, borderstyle = 'solid', borderwidth = 1, stationary = False ):
         """ Initialize the tooltip attached to widget
 
-        * message
+        * widget
+        * message (msg)
         * delay
-        * background color
+        * background color (bg)
         * font
         * wrap length
+        * border style
+        * border width
+        * stationary
         """
         self.widget = widget
         self.text = msg
