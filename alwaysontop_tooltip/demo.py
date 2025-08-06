@@ -15,7 +15,10 @@ def main():
         delay = 500,
         bg = "#f0f0f0",
         font = ( "Verdana", 10 ),
-        wraplength = 350
+        wraplength = 350,
+        borderstyle = 'raised',
+        borderwidth = 8,
+        stationary = True
         )
 
     root.mainloop()

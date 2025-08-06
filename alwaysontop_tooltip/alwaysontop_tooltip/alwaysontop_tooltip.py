@@ -2,7 +2,7 @@ import tkinter as tk
 
 class AlwaysOnTopToolTip:
     """ A tooltip that appears when hovering over a widget, remains on top, and can be styled """
-    def __init__( self, widget, msg, delay = 500, bg = "#ffffe0", font = ( "Calibri", 10 ), wraplength = 300 ):
+    def __init__( self, widget, msg, delay = 500, bg = "#ffffe0", font = ( "Calibri", 10 ), wraplength = 300, borderstyle = 'solid', borderwidth = 1, stationary = False ):
         """ Initialize the tooltip with the widget, message, delay, background color, font, and wrap length """
         self.widget = widget
         self.text = msg
@@ -10,12 +10,22 @@ class AlwaysOnTopToolTip:
         self.bg = bg
         self.font = font
         self.wraplength = wraplength
+        self.borderwidth = borderwidth
+
+        if borderstyle in ( 'solid', 'flat', 'raised', 'sunken', 'groove', 'ridge' ):
+            self.border = borderstyle
+            if borderstyle in ( 'groove', 'ridge', 'sunken', 'raised' ) and borderwidth < 2:
+                # Use a minimum border width for the style to be visible
+                self.borderwidth = 3
+        else:
+            self.border = 'solid'
         self.tooltip_window = None
         self.after_id = None
 
         self.widget.bind( "<Enter>", self.schedule )
         self.widget.bind( "<Leave>", self.hide )
-        self.widget.bind( "<Motion>", self.move )
+        if not stationary:
+            self.widget.bind( "<Motion>", self.move )
 
     def schedule( self, event = None ):
         """ Schedule the tooltip to show after a delay """
@@ -51,13 +61,13 @@ class AlwaysOnTopToolTip:
             tw,
             text = self.text,
             background = self.bg,
-            borderwidth = 1,
             font = self.font,
             justify = 'left',
             padx = 5,
             pady = 5,
-            relief = "solid",
-            wraplength = self.wraplength
+            relief = self.border,
+            borderwidth = self.borderwidth,
+            wraplength = self.wraplength,
         )
         label.pack()
 
