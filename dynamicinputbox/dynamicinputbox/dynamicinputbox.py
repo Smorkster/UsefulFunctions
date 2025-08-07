@@ -99,7 +99,9 @@ class dynamic_inputbox():
         self._master.destroy()
 
     def on_closing( self, button = None ):
-        """ Handles the closing of the dialog, collecting input data and clicked button. """
+        """ Handles the closing of the dialog, collecting input data and clicked button.
+         
+          * button: The label of the button that was clicked to close the dialog."""
         self._inputtext = {
             'inputs': [ ( label, field.get() ) for label, field in self.input_fields.items() ],
             'alternatives': [ ( label, var.get() ) for label, var in self.alternatives_vars.items() ]
@@ -226,7 +228,9 @@ class dynamic_inputbox():
         self._master.mainloop()
 
     def get( self, dictionary = False ):
-        """ Retrieves the input data and clicked button after the dialog is closed. """
+        """ Retrieves the input data and clicked button after the dialog is closed.
+        
+         * dictionary: If True, returns a dictionary with inputs and alternatives; otherwise, returns a tuple."""
         inputs_dict = dict( self._inputtext[ 'inputs' ] ) if self.inputs else None
         alternatives_dict = dict( self._inputtext[ 'alternatives' ] ) if self.alternatives else None
 
