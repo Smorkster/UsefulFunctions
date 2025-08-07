@@ -6,7 +6,7 @@ def main():
     root.title( "AlwaysOnTopToolTip Demo" )
     root.geometry( "300x200" )
 
-    label = tk.Label( root, text = "Hover over me!", font = ( "Arial", 14 ) )
+    label = tk.Label( root, text = "Hover over me", font = ( "Arial", 14 ) )
     label.pack( pady = 50 )
 
     AlwaysOnTopToolTip(
