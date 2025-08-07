@@ -11,14 +11,23 @@ def main():
 
     AlwaysOnTopToolTip(
         label,
-        msg = "This is an always-on-top tooltip that appears when you hover over Tkinter widgets.",
+        msg = "This is an always-on-top tooltip, with blinking effect, that appears when you hover over Tkinter widgets.",
         delay = 500,
         bg = "#f0f0f0",
         font = ( "Verdana", 10 ),
         wraplength = 350,
-        borderstyle = 'raised',
-        borderwidth = 8,
-        stationary = True
+        borderstyle = 'solid',
+        borderwidth = 2,
+        stationary = True,
+        blink={
+            "enabled": True,
+            "interval": 200,
+            "mode": "opacity",
+            "min_alpha": -2.3,
+            "max_alpha": 1.0,
+            "step": 0.9,
+            "duration": 3000  # Stops after 3 seconds
+        }
         )
 
     root.mainloop()

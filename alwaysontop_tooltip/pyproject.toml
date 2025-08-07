@@ -1,6 +1,6 @@
 [project]
 name = "alwaysontop_tooltip"
-version = "1.1.4"
+version = "1.2"
 description = "A Tkinter tooltip widget that always stays on top."
 authors = [{ name="Smorkster", email="smorkster@gmail.com" }]
 readme = "README.md"

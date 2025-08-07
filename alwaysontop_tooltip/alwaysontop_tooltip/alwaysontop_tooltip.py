@@ -2,7 +2,18 @@ import tkinter as tk
 
 class AlwaysOnTopToolTip:
     """ A tooltip that appears when hovering over a widget, remains on top, and can be styled """
-    def __init__( self, widget, msg, delay = 500, bg = "#ffffe0", font = ( "Calibri", 10 ), wraplength = 300, borderstyle = 'solid', borderwidth = 1, stationary = False ):
+    def __init__(
+            self,
+            widget: tk.Widget,
+            msg: str,
+            delay: int = 500,
+            bg: str = "#ffffe0",
+            font: tuple = ( "Calibri", 10 ),
+            wraplength: int = 300,
+            borderstyle: str = 'solid',
+            borderwidth: int = 1,
+            stationary: bool = False,
+            blink: dict | None = None ):
         """ Initialize the tooltip attached to widget
 
         * widget - The widget to attach the tooltip to
@@ -14,7 +25,23 @@ class AlwaysOnTopToolTip:
         * borderstyle - Style of the tooltip border (e.g., 'solid', 'flat', 'raised', 'sunken', 'groove', 'ridge')
         * borderwidth - Width of the tooltip border
         * stationary - If True, the tooltip does not follow the mouse cursor
+        * blink - Configuration for blinking effect, a dictionary with options:
+            - enabled: bool, whether blinking is enabled
+            - interval: int, time in milliseconds between blink updates
+            - mode: str, 'visibility' or 'opacity' for blinking effect
+            - min_alpha: float, minimum opacity for 'opacity' mode
+            - max_alpha: float, maximum opacity for 'opacity' mode
+            - step: float, change in opacity per blink for 'opacity' mode
+            - duration: int, time in milliseconds after which blinking stops
+        Raises:
+            ValueError: If widget is None or msg is not a non-empty string
         """
+
+        # Initial validation
+        if widget is None:
+            raise ValueError("Tooltip requires a valid widget.")
+        if not isinstance(msg, str) or not msg.strip():
+            raise ValueError("Tooltip requires a non-empty message string.")
 
         self.widget = widget
         self.text = msg
@@ -24,13 +51,32 @@ class AlwaysOnTopToolTip:
         self.wraplength = wraplength
         self.borderwidth = borderwidth
 
+        # Blink config
+        self.blink_config = blink or {}
+        self.blink_enabled = self.blink_config.get( "enabled", False )
+        self.blink_interval = self.blink_config.get( "interval", 500 )
+        self.blink_mode = self.blink_config.get( "mode", "solid" )
+        self.blink_duration = self.blink_config.get( "duration", None )
+        self.blink_timeout_job = None
+
+        # Opacity mode settings
+        self.min_alpha = self.blink_config.get( "min_alpha", 0.3 )
+        self.max_alpha = self.blink_config.get( "max_alpha", 1.0 )
+        self.alpha_step = self.blink_config.get( "step", 0.1 )
+        self.current_alpha = self.max_alpha
+        self.alpha_direction = -1  # fading out
+
+        self.blink_job = None
+        self.blink_state = True
+
         if borderstyle in ( 'solid', 'flat', 'raised', 'sunken', 'groove', 'ridge' ):
             self.border = borderstyle
-            if borderstyle in ( 'groove', 'ridge', 'sunken', 'raised' ) and borderwidth < 2:
+            if borderstyle in ( 'groove', 'ridge', 'sunken', 'raised' ) and borderwidth < 3:
                 # Use a minimum border width for the style to be visible
                 self.borderwidth = 3
         else:
             self.border = 'solid'
+
         self.tooltip_window = None
         self.after_id = None
 
@@ -87,10 +133,65 @@ class AlwaysOnTopToolTip:
         )
         label.pack()
 
+        if self.blink_enabled:
+            self.start_blink()
+
+    def start_blink( self ):
+        """ Start the blinking effect for the tooltip """
+        if not self.tooltip_window:
+            return
+
+        # Blinking behavior: either visibility toggle or opacity fade
+        if self.blink_mode == "visibility":
+            self.blink_state = not self.blink_state
+            if self.blink_state:
+                self.tooltip_window.deiconify()
+            else:
+                self.tooltip_window.withdraw()
+
+        elif self.blink_mode == "opacity":
+            self.current_alpha += self.alpha_step * self.alpha_direction
+            if self.current_alpha <= self.min_alpha:
+                self.current_alpha = self.min_alpha
+                self.alpha_direction = 1
+            elif self.current_alpha >= self.max_alpha:
+                self.current_alpha = self.max_alpha
+                self.alpha_direction = -1
+            self.tooltip_window.attributes( "-alpha", self.current_alpha )
+
+        # Reschedule blink
+        self.blink_job = self.tooltip_window.after( self.blink_interval, self.start_blink )
+
+        # Start the timer to stop blinking after a fixed duration
+        if self.blink_duration and not self.blink_timeout_job:
+            self.blink_timeout_job = self.tooltip_window.after(
+                self.blink_duration, self.stop_blink
+            )
+
+    def stop_blink( self ):
+        # Cancel the repeated blinking
+
+        if self.blink_job and self.tooltip_window:
+            self.tooltip_window.after_cancel( self.blink_job )
+            self.blink_job = None
+
+        # Cancel the timeout that would stop blinking
+        if self.blink_timeout_job and self.tooltip_window:
+            self.tooltip_window.after_cancel( self.blink_timeout_job )
+            self.blink_timeout_job = None
+
+        # Reset state based on mode
+        if self.tooltip_window:
+            if self.blink_mode == "visibility":
+                self.tooltip_window.deiconify()
+            elif self.blink_mode == "opacity":
+                self.tooltip_window.attributes( "-alpha", self.max_alpha )
+
     def hide( self, event = None ):
         """ Hide the tooltip and clean up """
 
         self.unschedule()
+        self.stop_blink()
         if self.tooltip_window:
             self.tooltip_window.destroy()
             self.tooltip_window = None
