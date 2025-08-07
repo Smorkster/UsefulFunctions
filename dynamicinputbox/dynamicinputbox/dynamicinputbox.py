@@ -185,7 +185,7 @@ class dynamic_inputbox():
         if self.alternatives:
             if self.group_separator:
                 separator = ttk.Separator( self._master, orient = 'horizontal' )
-                separator.grid( row = row_index, columnspan = len( self.buttons ), sticky = ( W, E ), padx = 10, pady = [10,5] )
+                separator.grid( row = row_index, columnspan = len( self.buttons ), sticky = ( W, E ), padx = 10, pady = [ 10 , 5 ] )
                 row_index += 1
 
             row_index += 1
