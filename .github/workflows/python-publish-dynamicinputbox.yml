@@ -5,8 +5,8 @@ name: Publish DynamicInputBox
 
 on:
   push:
-    tags:
-      - 'dynamicinputbox_v*'  # Triggers only when you push a tag like dynamicinputbox_v1.0.0
+    paths:
+      - './dynamicinputbox'  # Triggers only when files are pushed/updated in the dynamicinputbox directory
 
 permissions:
   contents: read
