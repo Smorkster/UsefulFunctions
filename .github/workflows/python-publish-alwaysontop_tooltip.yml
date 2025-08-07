@@ -10,8 +10,8 @@ name: Publish AlwaysOnTop_Tooltip
 
 on:
   push:
-    tags:
-      - 'alwaysontop_tooltip_v*'  # Triggers only when you push a tag like alwaysontop_tooltip_v1.0.0
+    paths:
+      - 'alwaysontop_tooltip/**'  # Triggers only when you push/update files in alwaysontop_tooltip directory
 
 permissions:
   contents: read
