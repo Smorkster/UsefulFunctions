@@ -11,7 +11,7 @@ name: Publish AlwaysOnTop_Tooltip
 on:
   push:
     paths:
-      - './alwaysontop_tooltip'  # Triggers only when you push/update files in alwaysontop_tooltip directory
+      - 'alwaysontop_tooltip/**'  # Triggers only when you push/update files in alwaysontop_tooltip directory
 
 permissions:
   contents: read
