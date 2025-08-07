@@ -1,3 +1,6 @@
+PePy statistics 
+[![PyPI Downloads](https://static.pepy.tech/badge/dynamicinputbox)](https://pepy.tech/projects/dynamicinputbox)
+
 # About
 A dynamic and customizable input dialog box using Tkinter.
 
