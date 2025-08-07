@@ -40,7 +40,7 @@ class AlwaysOnTopToolTip:
         # Initial validation
         if widget is None:
             raise ValueError( "Tooltip requires a valid widget." )
-        if not isinstance(msg, str) or not msg.strip():
+        if not isinstance( msg, str) or not msg.strip():
             raise ValueError("Tooltip requires a non-empty message string.")
 
         self.widget = widget
