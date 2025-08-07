@@ -58,9 +58,12 @@ jobs:
         working-directory: ./${{ env.PACKAGE_NAME }}
         run: python -m build
 
+      - name: Check token is set
+        run: echo "Token length ${#{{ secrets.PYPI_API_TOKEN }}}"
+  
       - name: Publish to PyPI
         if: steps.should_publish.outputs.publish == 'true'
-        uses: pypa/gh-action-pypi-publish@release/v1
+        uses: pypa/gh-action-pypi-publish@v1.8.11
         with:
           password: ${{ secrets.PYPI_API_TOKEN }}
           packages-dir: ${{ env.PACKAGE_NAME }}/dist
