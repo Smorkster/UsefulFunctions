@@ -26,6 +26,7 @@ the user to respond via custom buttons.
      * 'default': Pre-selected option (defaults to the first in 'options').
   * buttons (Optional[List[str]]): A list of button labels to display. The clicked button is returned. Default is ['OK'].
   * default_button (Optional[str]): Which button should be pre-focused. If not set, the first button is focused (unless inputs exist).
+  * separator (Optional[bool]): Is a separator to be placed between each widget group
 
 ## Returns
 The class itself does not return a value upon instantiation.

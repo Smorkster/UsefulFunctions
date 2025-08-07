@@ -1,4 +1,4 @@
-from tkinter import Frame, Radiobutton, StringVar, Tk, Button, Entry, Label, N, E, W
+from tkinter import Frame, Radiobutton, StringVar, Tk, Button, Entry, Label, ttk, N, E, W
 from tkinter.font import Font
 from typing import Dict, List, Optional, Union
 
@@ -13,7 +13,8 @@ class dynamic_inputbox():
                  inputs: Optional[ List[ Dict[ str, Union[ str, None ] ] ] ] = None,
                  alternatives: Optional[ List[ Dict[ str, Union[ str, List[ str ] ] ] ] ] = None,
                  buttons: Optional[ List[ str ] ] = [ 'OK' ],
-                 default_button: Optional[str] = None
+                 default_button: Optional[ str ] = None,
+                 group_separator: Optional[ bool ] = False
                 ):
         """
         A dynamic and customizable input dialog box using Tkinter.
@@ -71,6 +72,7 @@ class dynamic_inputbox():
         self.input_fields = {}
         self.alternatives_vars = {}
         self.firstentry = None
+        self.group_separator = group_separator
 
         self.title = title
         self.message = message
@@ -144,7 +146,12 @@ class dynamic_inputbox():
         if self.message:
             m = Label( self._master, text = self.message, justify = 'left' ,font = ordinary_font )
             m.grid( row = 0, column = 0, columnspan = len( self.buttons ), padx = 10, pady = 5, sticky = ( N, W ) )
-            row_index = 1
+            row_index += 1
+
+        if self.group_separator:
+            separator = ttk.Separator( self._master, orient = 'horizontal' )
+            separator.grid( row = row_index, columnspan = len( self.buttons ), sticky = ( W, E ), padx = 10, pady = 5 )
+            row_index += 1
 
         if self.inputs:
             for i, input in enumerate( self.inputs ):
@@ -176,6 +183,11 @@ class dynamic_inputbox():
 
         row_index += len( self.inputs )
         if self.alternatives:
+            if self.group_separator:
+                separator = ttk.Separator( self._master, orient = 'horizontal' )
+                separator.grid( row = row_index, columnspan = len( self.buttons ), sticky = ( W, E ), padx = 10, pady = [10,5] )
+                row_index += 1
+
             row_index += 1
             for j, alternative in enumerate( self.alternatives ):
                 grp_frame = Frame( master = self._master )
@@ -229,7 +241,7 @@ class dynamic_inputbox():
 
     def get( self, dictionary = False ):
         """ Retrieves the input data and clicked button after the dialog is closed.
-        
+
          * dictionary: If True, returns a dictionary with inputs and alternatives; otherwise, returns a tuple."""
         inputs_dict = dict( self._inputtext[ 'inputs' ] ) if self.inputs else None
         alternatives_dict = dict( self._inputtext[ 'alternatives' ] ) if self.alternatives else None
