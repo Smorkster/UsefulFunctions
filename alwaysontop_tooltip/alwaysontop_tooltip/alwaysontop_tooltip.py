@@ -15,6 +15,7 @@ class AlwaysOnTopToolTip:
         * borderwidth - Width of the tooltip border
         * stationary - If True, the tooltip does not follow the mouse cursor
         """
+
         self.widget = widget
         self.text = msg
         self.delay = delay
@@ -40,23 +41,27 @@ class AlwaysOnTopToolTip:
 
     def schedule( self, event = None ):
         """ Schedule the tooltip to show after a delay """
+
         self.unschedule()
         self.after_id = self.widget.after( self.delay, self.show )
 
     def unschedule( self ):
         """ Cancel the scheduled tooltip display if it exists """
+
         if self.after_id:
             self.widget.after_cancel( self.after_id )
             self.after_id = None
 
     def move( self, event ):
         """ Move the tooltip to follow the mouse cursor """
+
         if self.tooltip_window:
             x, y = event.x_root + 20, event.y_root + 10
             self.tooltip_window.geometry( f"+{ x }+{ y }" )
 
     def show( self ):
         """ Show the tooltip at the current mouse position """
+
         if self.tooltip_window or not self.text:
             return
 
@@ -84,6 +89,7 @@ class AlwaysOnTopToolTip:
 
     def hide( self, event = None ):
         """ Hide the tooltip and clean up """
+
         self.unschedule()
         if self.tooltip_window:
             self.tooltip_window.destroy()
