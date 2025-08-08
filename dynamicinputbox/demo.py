@@ -2,16 +2,16 @@
 
 from dynamicinputbox import dynamic_inputbox
 
-result = dynamic_inputbox(
+tests = dynamic_inputbox(
         title = 'test',
         message = 'test msg',
         buttons = ['ok','cans'],
         default_button = 'ok',
         inputs = [
             { 'label':'Test 1' },
-            { 'label':'Test 2', 'default': 'Test default' },
+            { 'label':'Test 2', 'name': 'T2', 'default': 'Test default' },
             { 'label':'Test 3', 'show': '*' },
-            { 'label':'Test 4', 'preset': 'test preset' , 'show':'p'}
+            { 'label':'Test 4', 'preset': 'test preset' , 'show': 'p' }
             ],
         alternatives = [
             {'label': 'Role', 'options': ['Admin', 'User'], 'default': 'User'},
@@ -19,11 +19,39 @@ result = dynamic_inputbox(
             ],
         group_separator = True
     )
-r = result.get()
+r = tests.get()
 print( r )
-rr = result.get( dictionary = True )
-print( rr )
+rr = tests.get( dictionary = True , wipe_after_get = True )
+#print( rr )
 try:
-    print( list( rr.get( 'inputs' , {} ).values() )[0] )
+    print( list( rr[ 'inputs' ] ) )
 except:
     pass
+
+dlg = dynamic_inputbox(
+    title = "Login",
+    message = "Enter your credentials",
+    inputs = [
+        { 'label': 'Username' , 'name': 'Username' },
+        { 'label': 'Password', 'show': '*' }
+    ],
+    buttons = [ 'OK', 'Cancel' ]
+)
+
+# First retrieval — password returned as plain string, SecureString wiped
+result1 = dlg.get( dictionary = False, wipe_after_get = True )
+try:
+    #print( 'First call:', result1['inputs']['Username'] )
+    print( f'First call: { result1 }' )
+    print( 'First call password:', result1['inputs']['Password'] )
+except:
+    pass
+
+# Second retrieval — password is now gone
+result2 = dlg.get( dictionary = True, wipe_after_get = True )
+try:
+    print( 'Second call:', result2['inputs']['Username'] )
+    print( 'Second call password:', result2['inputs']['Password'] )
+except:
+    pass
+print( 'done' )
